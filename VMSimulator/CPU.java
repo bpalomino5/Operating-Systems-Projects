@@ -34,13 +34,12 @@ public class CPU{
 
 class MMU{
 	public static void fetch(String address){
-		System.out.println(address);
 		getValue(address);
 
 	}
 	public static void write(String address, String value){
-		System.out.println(address);
-		System.out.println(value);
+		//System.out.println(address);
+		//System.out.println(value);
 
 	}
 
@@ -61,5 +60,13 @@ class MMU{
 		}catch(FileNotFoundException e){
 			e.printStackTrace();
 		}
+	}
+}
+
+class TLB{
+	public TLBEntries[] entries;
+
+	class TLBEntries{
+
 	}
 }
