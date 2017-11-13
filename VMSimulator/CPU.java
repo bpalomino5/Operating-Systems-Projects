@@ -3,7 +3,16 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 public class CPU{
-	public static void readAddresses(String datafile){
+	public TLB tlb;
+
+	public CPU(){
+		this.tlb = new TLB();
+		for(TLBEntry t : tlb.entries){
+			System.out.println("hello");
+		}
+	}
+
+	public void readAddresses(String datafile){
 		System.out.println(datafile);	//print file name for testing
 		File file = new File(datafile);
 		try{
@@ -34,7 +43,7 @@ public class CPU{
 
 class MMU{
 	public static void fetch(String address){
-		getValue(address);
+		//getValue(address);
 
 	}
 	public static void write(String address, String value){
@@ -64,9 +73,23 @@ class MMU{
 }
 
 class TLB{
-	public TLBEntries[] entries;
+	TLBEntry[] entries;
 
-	class TLBEntries{
+	public TLB(){
+		this.entries = new TLBEntry[8];
+	}
+}
 
+class TLBEntry{
+	String VPageNumber;
+	int V,R,D;
+	String PageFrameNumber;
+
+	public TLBEntry(){
+		this.VPageNumber="";
+		this.V=0;
+		this.R=0;
+		this.D=0;
+		this.PageFrameNumber="";
 	}
 }
