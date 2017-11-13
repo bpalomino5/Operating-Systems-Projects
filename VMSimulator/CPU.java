@@ -6,10 +6,8 @@ public class CPU{
 	public TLB tlb;
 
 	public CPU(){
+		//Creating TLB for usage throughout CPU lifetime
 		this.tlb = new TLB();
-		for(TLBEntry t : tlb.entries){
-			System.out.println("hello");
-		}
 	}
 
 	public void readAddresses(String datafile){
@@ -43,7 +41,7 @@ public class CPU{
 
 class MMU{
 	public static void fetch(String address){
-		//getValue(address);
+		getValue(address);
 
 	}
 	public static void write(String address, String value){
@@ -76,11 +74,14 @@ class TLB{
 	TLBEntry[] entries;
 
 	public TLB(){
+		//Setting up TLB with empty entries
 		this.entries = new TLBEntry[8];
+		for(int i=0;i<8;i++)
+			this.entries[i] = new TLBEntry();
 	}
 }
 
-class TLBEntry{
+class TLBEntry{	//TLB Entry object for supporting TLB array
 	String VPageNumber;
 	int V,R,D;
 	String PageFrameNumber;
