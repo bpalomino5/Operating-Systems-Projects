@@ -3,11 +3,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 public class CPU{
-	public TLB tlb;
+	public MMU mmu;
 
 	public CPU(){
-		//Creating TLB for usage throughout CPU lifetime
-		this.tlb = new TLB();
+		mmu = new MMU();
 	}
 
 	public void readAddresses(String datafile){
@@ -22,12 +21,12 @@ public class CPU{
 				switch (condition) {
 					case "0": 	// MMU Fetch
 						address = input.nextLine();
-						MMU.fetch(address);
+						mmu.fetch(address);
 						break;
 					case "1": 	// MMU Write
 						address = input.nextLine();
 						value = input.nextLine();
-						MMU.write(address, value);
+						mmu.write(address, value);
 						break;
 				}
 			}
@@ -40,11 +39,21 @@ public class CPU{
 }
 
 class MMU{
-	public static void fetch(String address){
+	public TLB tlb;
+
+	public MMU(){
+		//Creating TLB for usage throughout CPU lifetime
+		this.tlb = new TLB();
+	}
+
+	public void fetch(String address){
+		if(tlb.isPresent(address)){
+			//get from physical
+		}
 		getValue(address);
 
 	}
-	public static void write(String address, String value){
+	public void write(String address, String value){
 		//System.out.println(address);
 		//System.out.println(value);
 
@@ -78,6 +87,16 @@ class TLB{
 		this.entries = new TLBEntry[8];
 		for(int i=0;i<8;i++)
 			this.entries[i] = new TLBEntry();
+	}
+
+	public boolean isPresent(String address){
+		String page = address.substring(0,2);
+		for(int i=0;i<8;i++){
+			if(this.entries[i].VPageNumber.equals(page)){
+				return true;
+			}
+		}
+		return false;
 	}
 }
 
