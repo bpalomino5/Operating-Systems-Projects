@@ -18,14 +18,15 @@ public class VPageTable{
 		return false;
 	}
 
-	public static int getPageFrameNumber(){
+	public static int getPageFrameNumber(int write){
+		if(write==1) entries[found].D=1;
+		entries[found].R=1;
 		return entries[found].PageFrameNumber;
 	}
 
 	public static void addPageEntry(String page, int pageFrameNumber){
 		Integer index = Integer.parseInt(page, 16);
 		entries[index].V=1;
-		entries[index].R=1;
 		entries[index].PageFrameNumber=pageFrameNumber;
 	}
 }

@@ -53,30 +53,50 @@ class MMU{
 
 		//first check if address in TLB
 		if(tlb.isPresent(address)){	//IS IN TLB
-			int pageFrame = tlb.getPageFrameNumber();
+			int pageFrame = tlb.getPageFrameNumber(0);
 			data = PhysicalMemory.getDatafromPageFrame(pageFrame, hexOffset);	//Get Data from Physical Memory
-			System.out.println(data);
+			//System.out.println(data);
 		}
 		else{	// NOT IN TLB
 			if(VPageTable.isPresent(page)){ 	//IS IN VPageTable
 				//get page frame from the table
-				int pageFrame = VPageTable.getPageFrameNumber();
+				int pageFrame = VPageTable.getPageFrameNumber(0);
 				data = PhysicalMemory.getDatafromPageFrame(pageFrame, hexOffset);
 			}
 			else{	//IS NOT IN VPageTABLE
 				data = PhysicalMemory.addPage(address); //get page from disk (Page file)
-				int PageFrameNumber = PhysicalMemory.getLastPageFrameNumber();
-				VPageTable.addPageEntry(page, PageFrameNumber);	//update VPageTable
+				int pageFrame = PhysicalMemory.getLastPageFrameNumber();
+				VPageTable.addPageEntry(page, pageFrame);	//update VPageTable
 			}
 			OS.ClockReplacement(tlb, address, PhysicalMemory.getLastPageFrameNumber());
-			System.out.println(data);
+			//System.out.println(data);
 		}
 	}
 
-	public void write(String address, String value){
-		//System.out.println(address);
-		//System.out.println(value);
+	public void write(String address, String data){
+		String page = address.substring(0,2);
+		String hexOffset = address.substring(2,4);
 
+		System.out.println("WRITING:"+data);
+		System.out.println("TO:"+address);
+		//first check if address in TLB
+		if(tlb.isPresent(address)){	//IS IN TLB
+			int pageFrame = tlb.getPageFrameNumber(1);
+			PhysicalMemory.storeDatafromPageFrame(pageFrame, hexOffset, data);	//store Data to Physical Memory
+		}
+		else{	// NOT IN TLB
+			if(VPageTable.isPresent(page)){ 	//IS IN VPageTable
+				int pageFrame = VPageTable.getPageFrameNumber(1);
+				PhysicalMemory.storeDatafromPageFrame(pageFrame, hexOffset, data);	//store data to Physical Mem
+			}
+			else{	//IS NOT IN VPageTABLE
+				String dat = PhysicalMemory.addPage(address); //get page from disk (Page file)
+				int pageFrame = PhysicalMemory.getLastPageFrameNumber();
+				PhysicalMemory.storeDatafromPageFrame(pageFrame, hexOffset, data); //store data to Physical MEM
+				VPageTable.addPageEntry(page, pageFrame);	//update VPageTable
+			}
+			OS.ClockReplacement(tlb, address, PhysicalMemory.getLastPageFrameNumber());
+		}
 	}
 }
 
@@ -105,7 +125,8 @@ class TLB{
 		return false;
 	}
 
-	public int getPageFrameNumber(){
+	public int getPageFrameNumber(int write){
+		if(write==1) this.entries[foundEntry].D=1;
 		this.entries[foundEntry].R=1;
 		return this.entries[foundEntry].PageFrameNumber;
 	}

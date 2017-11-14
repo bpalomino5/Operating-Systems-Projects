@@ -16,6 +16,12 @@ public class PhysicalMemory{
 		return blocks[pageFrame][offset];
 	}
 
+	public static void storeDatafromPageFrame(int pageFrame, String hexOffset, String data){
+		Integer offset = Integer.parseInt(hexOffset, 16);
+		if(offset>0) offset-=1;
+		blocks[pageFrame][offset]=data;
+	}
+
 	public static String addPage(String address){
 		//Storing page to memory
 		//Getting data from DISK
