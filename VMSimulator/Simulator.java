@@ -5,7 +5,6 @@ public class Simulator{
 	public static void main(String[] args) {
 		if (args.length == 1){ //file inputed
 			OS os = new OS(args[0]);
-			// cpu.readAddresses(args[0]);
 		}
 		else{ //Exit invalid input
 			System.out.println("Error, please supply input file!");
