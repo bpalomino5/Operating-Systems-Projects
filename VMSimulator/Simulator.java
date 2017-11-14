@@ -3,11 +3,9 @@
 //Simulator Class which runs Virtual Memory Simulation using various components
 public class Simulator{
 	public static void main(String[] args) {
-		//Simulator Objects
-		CPU cpu = new CPU();
-	
 		if (args.length == 1){ //file inputed
-			cpu.readAddresses(args[0]);
+			OS os = new OS(args[0]);
+			// cpu.readAddresses(args[0]);
 		}
 		else{ //Exit invalid input
 			System.out.println("Error, please supply input file!");
