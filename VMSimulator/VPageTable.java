@@ -24,10 +24,11 @@ public class VPageTable{
 		return entries[found].PageFrameNumber;
 	}
 
-	public static void addPageEntry(String page, int pageFrameNumber){
+	public static void addPageEntry(String page, int pageFrameNumber, int write){
 		Integer index = Integer.parseInt(page, 16);
 		entries[index].V=1;
 		entries[index].PageFrameNumber=pageFrameNumber;
+		if(write==1) entries[index].D=1;
 	}
 }
 
