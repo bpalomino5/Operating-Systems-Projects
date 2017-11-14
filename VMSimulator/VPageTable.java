@@ -19,7 +19,7 @@ public class VPageTable{
 	}
 
 	public static int getPageFrameNumber(){
-		return found;
+		return entries[found].PageFrameNumber;
 	}
 
 	public static void addPageEntry(String page, int pageFrameNumber){
