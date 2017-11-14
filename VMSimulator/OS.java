@@ -20,6 +20,8 @@ public class OS{
 
 		//have cpu read test file
 		cpu = new CPU();
+		memory = new PhysicalMemory();
+		pagetable = new VPageTable();
 		cpu.readAddresses(file);
 	}
 }

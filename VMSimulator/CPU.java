@@ -47,49 +47,51 @@ class MMU{
 	}
 
 	public void fetch(String address){
-		//first check if address in TLB
-		if(tlb.isPresent(address)){
-			System.out.println(address + " is present");
-		}
-		else{
-			System.out.println("not present");
-			tlb.addAddress(address);
-		}
-		getValue(address);
+		String page = address.substring(0,2);
+		String hexOffset = address.substring(2,4);
+		String data="";
 
+		//first check if address in TLB
+		if(tlb.isPresent(address)){	//IS IN TLB
+			//System.out.println("IN TLB");
+			int pageFrame = tlb.getPageFrameNumber();
+			data = PhysicalMemory.getDatafromPageFrame(pageFrame, hexOffset);	//Get Data from Physical Memory
+			System.out.println(data);
+		}
+		else{	// NOT IN TLB
+			//System.out.println("NOT IN TLB");
+			if(VPageTable.isPresent(page)){ 	//IS IN VPageTable
+				//get page frame from the table
+				//System.out.println("In VPageTable");
+				int pageFrame = VPageTable.getPageFrameNumber();
+				data = PhysicalMemory.getDatafromPageFrame(pageFrame, hexOffset);
+			}
+			else{	//IS NOT IN VPageTABLE
+				//System.out.println("Not in VPageTable");
+				data = PhysicalMemory.addPage(address); //get page from disk (Page file)
+				int PageFrameNumber = PhysicalMemory.getLastPageFrameNumber();
+				VPageTable.addPageEntry(page, PageFrameNumber);	//update VPageTable
+			}
+			tlb.addTLBEntry(address, PhysicalMemory.getLastPageFrameNumber()); //UPDATE TLB
+			System.out.println(data);
+		}
 	}
+
 	public void write(String address, String value){
 		//System.out.println(address);
 		//System.out.println(value);
 
-	}
-
-	public static void getValue(String address){
-		String page = address.substring(0,2);
-		String hex = address.substring(2,4);
-		Integer offset = Integer.parseInt(hex, 16);
-
-		File file = new File("page_files/"+page+".pg");
-		try{	//access page and traverse until offset is reached
-			Scanner input = new Scanner(file);
-			int i=1;
-			while(i < offset && input.hasNextLine()){
-				input.nextLine();
-				i++;
-			}
-			System.out.println(input.nextLine());	//get offset
-		}catch(FileNotFoundException e){
-			e.printStackTrace();
-		}
 	}
 }
 
 class TLB{
 	TLBEntry[] entries;
 	int nextAvailable;
+	int foundEntry;
 
 	public TLB(){
 		this.nextAvailable=0;
+		this.foundEntry=0;
 		//Setting up TLB with empty entries
 		this.entries = new TLBEntry[8];
 		for(int i=0;i<8;i++)
@@ -100,32 +102,38 @@ class TLB{
 		String page = address.substring(0,2);
 		for(int i=0;i<8;i++){
 			if(this.entries[i].VPageNumber.equals(page)){
-				this.nextAvailable=i;
+				this.foundEntry=i;
 				return true;
 			}
 		}
 		return false;
 	}
 
-	public void addAddress(String address){
+	public void addTLBEntry(String address, int pageFrameNumber){
+		//Use CLock Replacement Algorithm to replace Entries from TLB from 9th entry onward
 		String page = address.substring(0,2);
 		this.entries[nextAvailable].VPageNumber=page;
 		this.entries[nextAvailable].V=1;
 		this.entries[nextAvailable].R=1;
-		this.entries[nextAvailable].PageFrameNumber="0";
+		this.entries[nextAvailable].PageFrameNumber=pageFrameNumber;
+		nextAvailable++;
+	}
+
+	public int getPageFrameNumber(){
+		return this.entries[foundEntry].PageFrameNumber;
 	}
 }
 
 class TLBEntry{	//TLB Entry object for supporting TLB array
 	String VPageNumber;
 	int V,R,D;
-	String PageFrameNumber;
+	int PageFrameNumber;
 
 	public TLBEntry(){
 		this.VPageNumber="";
 		this.V=0;
 		this.R=0;
 		this.D=0;
-		this.PageFrameNumber="";
+		this.PageFrameNumber=0;
 	}
 }
