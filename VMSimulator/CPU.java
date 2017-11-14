@@ -90,7 +90,7 @@ class MMU{
 				PhysicalMemory.storeDatafromPageFrame(pageFrame, hexOffset, data);	//store data to Physical Mem
 			}
 			else{	//IS NOT IN VPageTABLE
-				String dat = PhysicalMemory.addPage(address); //get page from disk (Page file)
+				PhysicalMemory.addPage(address); //get page from disk (Page file)
 				int pageFrame = PhysicalMemory.getLastPageFrameNumber();
 				PhysicalMemory.storeDatafromPageFrame(pageFrame, hexOffset, data); //store data to Physical MEM
 				VPageTable.addPageEntry(page, pageFrame);	//update VPageTable
