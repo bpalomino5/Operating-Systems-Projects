@@ -47,8 +47,13 @@ class MMU{
 	}
 
 	public void fetch(String address){
+		//first check if address in TLB
 		if(tlb.isPresent(address)){
-			//get from physical
+			System.out.println(address + " is present");
+		}
+		else{
+			System.out.println("not present");
+			tlb.addAddress(address);
 		}
 		getValue(address);
 
@@ -81,8 +86,10 @@ class MMU{
 
 class TLB{
 	TLBEntry[] entries;
+	int nextAvailable;
 
 	public TLB(){
+		this.nextAvailable=0;
 		//Setting up TLB with empty entries
 		this.entries = new TLBEntry[8];
 		for(int i=0;i<8;i++)
@@ -93,10 +100,19 @@ class TLB{
 		String page = address.substring(0,2);
 		for(int i=0;i<8;i++){
 			if(this.entries[i].VPageNumber.equals(page)){
+				this.nextAvailable=i;
 				return true;
 			}
 		}
 		return false;
+	}
+
+	public void addAddress(String address){
+		String page = address.substring(0,2);
+		this.entries[nextAvailable].VPageNumber=page;
+		this.entries[nextAvailable].V=1;
+		this.entries[nextAvailable].R=1;
+		this.entries[nextAvailable].PageFrameNumber="0";
 	}
 }
 

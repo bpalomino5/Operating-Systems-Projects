@@ -4,6 +4,8 @@ import java.io.IOException;
 
 public class OS{
 	CPU cpu;
+	PhysicalMemory memory;
+	VPageTable pagetable;
 
 	public OS(String file){
 		//copy page files to pages directory for simulator usage
