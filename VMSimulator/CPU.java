@@ -10,25 +10,25 @@ public class CPU{
 	}
 
 	public void readAddresses(String datafile){
-		System.out.println(datafile);	//print file name for testing
 		File file = new File(datafile);
 		try{
 			Scanner input = new Scanner(file);
 			while(input.hasNextLine()){		//handle file
 				String condition = input.nextLine();
 				String address = "", value = "";
+				address = input.nextLine();
+				OS.result.append(address+","+condition+",");
 
 				switch (condition) {
 					case "0": 	// MMU Fetch
-						address = input.nextLine();
 						mmu.fetch(address);
 						break;
 					case "1": 	// MMU Write
-						address = input.nextLine();
 						value = input.nextLine();
 						mmu.write(address, value);
 						break;
 				}
+				OS.addResultToOutput();
 			}
 			input.close();
 		}
@@ -52,24 +52,25 @@ class MMU{
 		String data="";
 
 		//first check if address in TLB
-		if(tlb.isPresent(address)){	//IS IN TLB
+		if(tlb.isPresent(address)){	//IS IN TLB HIT
 			int pageFrame = tlb.getPageFrameNumber(0);
 			data = PhysicalMemory.getDatafromPageFrame(pageFrame, hexOffset);	//Get Data from Physical Memory
-			//System.out.println(data);
+			OS.result.append("0,0,1,0,"+data);
 		}
-		else{	// NOT IN TLB
-			if(VPageTable.isPresent(page)){ 	//IS IN VPageTable
+		else{	// NOT IN TLB 
+			if(VPageTable.isPresent(page)){ 	//IS IN VPageTable SOFT MISS
 				//get page frame from the table
 				int pageFrame = VPageTable.getPageFrameNumber(0);
 				data = PhysicalMemory.getDatafromPageFrame(pageFrame, hexOffset);
+				OS.result.append("1,0,0,0,"+data);
 			}
-			else{	//IS NOT IN VPageTABLE
+			else{	//IS NOT IN VPageTABLE HARD MISS
 				data = PhysicalMemory.addPage(address); //get page from disk (Page file)
 				int pageFrame = PhysicalMemory.getLastPageFrameNumber();
 				VPageTable.addPageEntry(page, pageFrame,0);	//update VPageTable
+				OS.result.append("0,1,0,0,"+data);
 			}
 			OS.ClockReplacement(tlb, address, PhysicalMemory.getLastPageFrameNumber(),0);
-			//System.out.println(data);
 		}
 	}
 
@@ -77,23 +78,25 @@ class MMU{
 		String page = address.substring(0,2);
 		String hexOffset = address.substring(2,4);
 
-		// System.out.println("WRITING:"+data);
-		// System.out.println("TO:"+address);
 		//first check if address in TLB
-		if(tlb.isPresent(address)){	//IS IN TLB
+		if(tlb.isPresent(address)){	//IS IN TLB HIT
 			int pageFrame = tlb.getPageFrameNumber(1);
 			PhysicalMemory.storeDatafromPageFrame(pageFrame, hexOffset, data);	//store Data to Physical Memory
+			OS.result.append("0,0,1,0,"+data);
 		}
-		else{	// NOT IN TLB
-			if(VPageTable.isPresent(page)){ 	//IS IN VPageTable
+		else{	// NOT IN TLB 
+			if(VPageTable.isPresent(page)){ 	//IS IN VPageTable SOFT MISS
 				int pageFrame = VPageTable.getPageFrameNumber(1);
 				PhysicalMemory.storeDatafromPageFrame(pageFrame, hexOffset, data);	//store data to Physical Mem
+				OS.result.append("1,0,0,1,"+data);
+
 			}
-			else{	//IS NOT IN VPageTABLE
+			else{	//IS NOT IN VPageTABLE HARD MISS
 				PhysicalMemory.addPage(address); //get page from disk (Page file)
 				int pageFrame = PhysicalMemory.getLastPageFrameNumber();
 				PhysicalMemory.storeDatafromPageFrame(pageFrame, hexOffset, data); //store data to Physical MEM
 				VPageTable.addPageEntry(page, pageFrame,1);	//update VPageTable
+				OS.result.append("0,1,0,1,"+data);
 			}
 			OS.ClockReplacement(tlb, address, PhysicalMemory.getLastPageFrameNumber(), 1);
 		}

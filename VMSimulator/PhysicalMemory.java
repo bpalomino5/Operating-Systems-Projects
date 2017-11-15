@@ -23,8 +23,7 @@ public class PhysicalMemory{
 	}
 
 	public static String addPage(String address){
-		//Storing page to memory
-		//Getting data from DISK
+		//Storing page to memory, Getting data from DISK
 		return getDataFromDisk(address);
 	}
 
@@ -38,11 +37,12 @@ public class PhysicalMemory{
 		String page = address.substring(0,2);
 		String hex = address.substring(2,4);
 		Integer offset = Integer.parseInt(hex, 16);
+		if(offset>0) offset-=1;
 		String data;
 
 		//store page from disk to memory array
 		storeDiskFileToMemory(page);
-		data = blocks[pointer][offset-1];	//offset - 1 because array is 0 based
+		data = blocks[pointer][offset];	//offset - 1 because array is 0 based
 
 		//handle pointer
 		if(pointer==15) pointer=0;

@@ -3,13 +3,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-
+import java.lang.StringBuilder;
 
 public class OS{
 	CPU cpu;
 	PhysicalMemory memory;
 	VPageTable pagetable;
 	static int clockPointer;
+	static String[] output;
+	static StringBuilder result;
+	static int next;
 
 	public OS(String file){
 		//copy page files to pages directory for simulator usage
@@ -28,6 +31,11 @@ public class OS{
 		cpu = new CPU();
 		memory = new PhysicalMemory();
 		pagetable = new VPageTable();
+		output = new String[1200];
+		output[0] = "Address,Read/Write,Soft Miss,Hard Miss,Hit,Dirty,Value";
+		next=1;
+		result = new StringBuilder();
+		System.out.println("Reading file " + file);
 		cpu.readAddresses(file);
 	}
 
@@ -35,7 +43,7 @@ public class OS{
 		String page = address.substring(0,2);
 		while(true){
 			if(tlb.entries[clockPointer].R == 0){
-				if(write==1){ //write page back to disk
+				if(write==1 && tlb.entries[clockPointer].V==1){ //write page back to disk
 					writePageBacktoDisk(tlb.entries[clockPointer].VPageNumber, tlb.entries[clockPointer].PageFrameNumber);
 
 					//resetting dirty bit
@@ -60,7 +68,6 @@ public class OS{
 
 	public static void writePageBacktoDisk(String VPageNumber,int pageFrame){
 		try{
-			//System.out.println("WRITING TO "+ VPageNumber);
 			FileWriter writer = new FileWriter("pages/"+VPageNumber+".pg", false);
 			BufferedWriter bw = new BufferedWriter(writer);
 
@@ -74,5 +81,11 @@ public class OS{
 		catch(IOException e){
 			e.printStackTrace();
 		}
+	}
+
+	public static void addResultToOutput(){
+		output[next]= result.toString();
+		next++;
+		result.setLength(0);
 	}
 }
