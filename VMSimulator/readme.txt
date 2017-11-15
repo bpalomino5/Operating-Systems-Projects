@@ -1,4 +1,4 @@
-readme: VMSimulator
+README: VMSimulator
 
 Description:
 VMSimulator is a project for simulating Virtual Memory as it behaves in the CPU, OS, Virtual Page Table, and TLB Cache.
