@@ -22,11 +22,12 @@ public class PhysicalMemory{
 		blocks[pageFrame][offset]=data;
 	}
 
+	//Storing page to memory
 	public static String addPage(String address){
-		//Storing page to memory, Getting data from DISK
 		return getDataFromDisk(address);
 	}
 
+	//returns page frame number of last added page
 	public static int getLastPageFrameNumber(){
 		if(pointer==0) return 15;
 		else return pointer-1;

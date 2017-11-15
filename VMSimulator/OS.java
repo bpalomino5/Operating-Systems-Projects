@@ -63,7 +63,11 @@ public class OS{
 						cpu.handleProcess(1,address,value);
 						break;
 				}
-				addResultToOutput();
+
+				//add Result to Output
+				output[next]= result.toString();
+				next++;
+				result.setLength(0);
 			}
 			input.close();
 		}
@@ -114,11 +118,5 @@ public class OS{
 		catch(IOException e){
 			e.printStackTrace();
 		}
-	}
-
-	public void addResultToOutput(){
-		output[next]= result.toString();
-		next++;
-		result.setLength(0);
 	}
 }
