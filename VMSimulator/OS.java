@@ -1,5 +1,7 @@
 import org.apache.commons.io.FileUtils;
 import java.io.File;
+import java.util.Scanner;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -25,18 +27,49 @@ public class OS{
 			e.printStackTrace();
 		}
 
-		clockPointer=0;
-
-		//have cpu read test file
+		//objects
 		cpu = new CPU();
 		memory = new PhysicalMemory();
 		pagetable = new VPageTable();
-		output = new String[1200];
+
+		//helper parts
+		clockPointer=0;
+		output = new String[1000];
 		output[0] = "Address,Read/Write,Soft Miss,Hard Miss,Hit,Dirty,Value";
 		next=1;
 		result = new StringBuilder();
-		System.out.println("Reading file " + file);
-		cpu.readAddresses(file);
+
+		//start reading from file
+		readfromFile(file);
+	}
+
+	public void readfromFile(String datafile){
+		System.out.println("Reading file: " + datafile);
+		File file = new File(datafile);
+		try{
+			Scanner input = new Scanner(file);
+			while(input.hasNextLine()){		//handle file
+				String condition = input.nextLine();
+				String address = "", value = "";
+				address = input.nextLine();
+				result.append(address+","+condition+",");
+
+				switch (condition) {
+					case "0": 	// MMU Fetch
+						cpu.handleProcess(0,address,value);
+						break;
+					case "1": 	// MMU Write
+						value = input.nextLine();
+						cpu.handleProcess(1,address,value);
+						break;
+				}
+				addResultToOutput();
+			}
+			input.close();
+		}
+		catch(FileNotFoundException e){
+			e.printStackTrace();
+		}
 	}
 
 	public static void ClockReplacement(TLB tlb, String address, int pageFrameNumber, int write){
@@ -83,7 +116,7 @@ public class OS{
 		}
 	}
 
-	public static void addResultToOutput(){
+	public void addResultToOutput(){
 		output[next]= result.toString();
 		next++;
 		result.setLength(0);

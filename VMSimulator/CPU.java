@@ -9,33 +9,39 @@ public class CPU{
 		mmu = new MMU();
 	}
 
-	public void readAddresses(String datafile){
-		File file = new File(datafile);
-		try{
-			Scanner input = new Scanner(file);
-			while(input.hasNextLine()){		//handle file
-				String condition = input.nextLine();
-				String address = "", value = "";
-				address = input.nextLine();
-				OS.result.append(address+","+condition+",");
-
-				switch (condition) {
-					case "0": 	// MMU Fetch
-						mmu.fetch(address);
-						break;
-					case "1": 	// MMU Write
-						value = input.nextLine();
-						mmu.write(address, value);
-						break;
-				}
-				OS.addResultToOutput();
-			}
-			input.close();
-		}
-		catch(FileNotFoundException e){
-			e.printStackTrace();
-		}
+	public void handleProcess(int condition, String address, String value){
+		if(condition==0) mmu.fetch(address);
+		else if(condition==1) mmu.write(address,value);
+		else System.exit(1);
 	}
+
+	// public void readAddresses(String datafile){
+	// 	File file = new File(datafile);
+	// 	try{
+	// 		Scanner input = new Scanner(file);
+	// 		while(input.hasNextLine()){		//handle file
+	// 			String condition = input.nextLine();
+	// 			String address = "", value = "";
+	// 			address = input.nextLine();
+	// 			OS.result.append(address+","+condition+",");
+
+	// 			switch (condition) {
+	// 				case "0": 	// MMU Fetch
+	// 					mmu.fetch(address);
+	// 					break;
+	// 				case "1": 	// MMU Write
+	// 					value = input.nextLine();
+	// 					mmu.write(address, value);
+	// 					break;
+	// 			}
+	// 			OS.addResultToOutput();
+	// 		}
+	// 		input.close();
+	// 	}
+	// 	catch(FileNotFoundException e){
+	// 		e.printStackTrace();
+	// 	}
+	// }
 }
 
 class MMU{
